@@ -191,6 +191,12 @@ public class GUI implements Mp3Observer{
         });
         JButton bSave = new JButton("Save");
         buttonPanel.add(bSave);
+        bSave.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveFiles();
+            }
+        });
         JButton bExit = new JButton("Exit");
         buttonPanel.add(bExit);
         bExit.addActionListener(new ActionListener() {
@@ -235,6 +241,15 @@ public class GUI implements Mp3Observer{
             } catch (Exception ex){
                 ex.printStackTrace();
             }
+        }
+    }
+
+    private void saveFiles(){
+        int result = fileChooser.showSaveDialog(frame);
+        File saveDir;
+        if (result == JFileChooser.APPROVE_OPTION){
+            saveDir = fileChooser.getSelectedFile();
+            model.saveChanged(saveDir);
         }
     }
 
