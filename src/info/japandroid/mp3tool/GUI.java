@@ -16,7 +16,10 @@ import java.io.FilenameFilter;
 /**
  * Created by sven on 31/07/16.
  */
-public class GUI {
+public class GUI implements Mp3Observer{
+
+    private Mp3ModelInterface model;
+
     private JFrame frame;
     private DefaultListModel<String> listModel;
     private JFileChooser fileChooser;
@@ -24,13 +27,15 @@ public class GUI {
     private JTextField tfTitle, tfArtist, tfAlbArtist, tfAlbum;
     private JList songList;
 
-    public GUI(){
+    public GUI(Mp3ModelInterface model){
+        this.model = model;
+        model.registerObserver(this);
         buildGUI();
     }
 
     private void buildGUI(){
         frame = new JFrame("mp3tool");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setSize(1000,280);
 
         JPanel mainPanel = new JPanel();
@@ -49,6 +54,12 @@ public class GUI {
         titlePanel.add(bTitleConfirm);
         titlePanel.add(bTitleRevert);
         titlePanel.add(bTitleAll);
+        bTitleConfirm.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                model.setTitle(tfTitle.getText(), songList.getSelectedIndex());
+            }
+        });
         titlePanel.setBorder(new TitledBorder("Title"));
         tagPanel.add(titlePanel);
 
@@ -62,6 +73,12 @@ public class GUI {
         artistPanel.add(bArtistConfirm);
         artistPanel.add(bArtistRevert);
         artistPanel.add(bArtistAll);
+        bArtistConfirm.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                model.setArtist(tfArtist.getText(), songList.getSelectedIndex());
+            }
+        });
         artistPanel.setBorder(new TitledBorder("Artist"));
         tagPanel.add(artistPanel);
 
@@ -75,6 +92,12 @@ public class GUI {
         albArtistPanel.add(bAlbArtistConfirm);
         albArtistPanel.add(bAlbArtistRevert);
         albArtistPanel.add(bAlbArtistAll);
+        bAlbArtistConfirm.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                model.setAlbumArtist(tfAlbArtist.getText(), songList.getSelectedIndex());
+            }
+        });
         albArtistPanel.setBorder(new TitledBorder("Album Artist"));
         tagPanel.add(albArtistPanel);
 
@@ -88,11 +111,18 @@ public class GUI {
         albumPanel.add(bAlbumConfirm);
         albumPanel.add(bAlbumRevert);
         albumPanel.add(bAlbumAll);
+        bAlbumConfirm.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                model.setAlbum(tfAlbum.getText(), songList.getSelectedIndex());
+            }
+        });
         albumPanel.setBorder(new TitledBorder("Album"));
         tagPanel.add(albumPanel);
 
         JPanel songPanel = new JPanel();
         listModel = new DefaultListModel<>();
+
 
         songList = new JList(listModel);
         songList.setVisibleRowCount(12);
@@ -106,11 +136,11 @@ public class GUI {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if(!e.getValueIsAdjusting()){
-                    ID3v2 id3 = myMusic.get(songList.getSelectedIndex()).getId3v2Tag();
-                    tfTitle.setText(id3.getTitle());
-                    tfAlbum.setText(id3.getAlbum());
-                    tfArtist.setText(id3.getArtist());
-                    tfAlbArtist.setText(id3.getAlbumArtist());
+                    int selected = songList.getSelectedIndex();
+                    tfTitle.setText(model.getTitle(selected));
+                    tfAlbum.setText(model.getAlbum(selected));
+                    tfArtist.setText(model.getArtist(selected));
+                    tfAlbArtist.setText(model.getAlbumArtist(selected));
                 }
             }
         });
@@ -128,6 +158,12 @@ public class GUI {
         buttonPanel.add(bSave);
         JButton bExit = new JButton("Exit");
         buttonPanel.add(bExit);
+        bExit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
 
         fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -151,9 +187,9 @@ public class GUI {
                         return name.toLowerCase().endsWith("mp3");
                     }
                 });
-                if (filesList.length != 0) {
+                if ((filesList != null) && (filesList.length > 0)) {
                     listModel.clear();
-                    myMusic = new Mp3List(filesList);
+                    model.addList(filesList);
                     for (File file : filesList
                             ) {
                         listModel.addElement(file.getName());
@@ -161,6 +197,15 @@ public class GUI {
                 }
             } catch (Exception ex){
                 ex.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void updateMP3() {
+        for (int i = 0; i < listModel.size(); i++) {
+            if (model.hasChanged(i)){
+                listModel.set(i, "<html><i>" +listModel.get(i) + "</i></html>");
             }
         }
     }
