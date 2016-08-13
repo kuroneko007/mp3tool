@@ -3,11 +3,10 @@ package info.japandroid.mp3tool;
 import com.mpatric.mp3agic.Mp3File;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by sven on 07/08/16.
- */
+
 public class Mp3List {
     private Mp3File[] mp3FileList;
     private boolean[] changeList;
@@ -29,7 +28,7 @@ public class Mp3List {
         mp3FileList = new Mp3File[mp3files.length];
         System.arraycopy(mp3files, 0, mp3FileList, 0, mp3files.length);
         changeList = new boolean[mp3files.length];
-        nextSlot = mp3FileList.length +1;
+        nextSlot = mp3FileList.length + 1;
     }
 
     public Mp3List(File[] fileList) throws java.io.IOException, com.mpatric.mp3agic.UnsupportedTagException, com.mpatric.mp3agic.InvalidDataException{
@@ -38,6 +37,7 @@ public class Mp3List {
         for (File file:fileList) {
             add(new Mp3File(file));
         }
+        nextSlot = mp3FileList.length + 1;
     }
 
     public Mp3File get(int index){
@@ -60,5 +60,9 @@ public class Mp3List {
         } else {
             return false;
         }
+    }
+
+    public void sort(){
+        Arrays.sort(mp3FileList, new Mp3Comparator());
     }
 }

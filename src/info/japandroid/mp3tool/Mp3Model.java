@@ -8,9 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by sven on 13/08/16.
- */
+
 public class Mp3Model implements Mp3ModelInterface{
 
     private Mp3List mp3s;
@@ -50,6 +48,16 @@ public class Mp3Model implements Mp3ModelInterface{
     }
 
     @Override
+    public String getTrack(int index){
+        return mp3s.get(index).getId3v2Tag().getTrack();
+    }
+
+    @Override
+    public String getFileName(int index) {
+        return mp3s.get(index).getFilename();
+    }
+
+    @Override
     public void registerObserver(Mp3Observer observer){
         observerList.add(observer);
     }
@@ -62,19 +70,9 @@ public class Mp3Model implements Mp3ModelInterface{
     }
 
     @Override
-    public void setAllTitles(String title) {
-        notifyObservers();
-    }
-
-    @Override
     public void setArtist(String artist, int index) {
         mp3s.get(index).getId3v2Tag().setArtist(artist);
         mp3s.setChanged(index, true);
-        notifyObservers();
-    }
-
-    @Override
-    public void setAllArtists(String artist) {
         notifyObservers();
     }
 
@@ -86,11 +84,6 @@ public class Mp3Model implements Mp3ModelInterface{
     }
 
     @Override
-    public void setAllAlbumArtists(String artist) {
-        notifyObservers();
-    }
-
-    @Override
     public void setAlbum(String album, int index) {
         mp3s.get(index).getId3v2Tag().setAlbum(album);
         mp3s.setChanged(index, true);
@@ -98,13 +91,13 @@ public class Mp3Model implements Mp3ModelInterface{
     }
 
     @Override
-    public void setAllAlbums(String album) {
-        notifyObservers();
+    public boolean hasChanged(int index){
+        return mp3s.hasChanged(index);
     }
 
     @Override
-    public boolean hasChanged(int index){
-        return mp3s.hasChanged(index);
+    public void sort() {
+        mp3s.sort();
     }
 
     @Override
