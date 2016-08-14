@@ -1,68 +1,90 @@
 package info.japandroid.mp3tool;
 
-import com.mpatric.mp3agic.Mp3File;
-
 import java.io.File;
 import java.util.Arrays;
-import java.util.List;
 
 
 public class Mp3List {
-    private Mp3File[] mp3FileList;
-    private boolean[] changeList;
-    private int nextSlot;
-
-    public Mp3List(int size){
-        mp3FileList = new Mp3File[size];
-        changeList = new boolean[size];
-        nextSlot = 0;
-    }
-
-    public Mp3List(List<Mp3File> mp3Files){
-        mp3FileList = mp3Files.toArray(new Mp3File[0]);
-        changeList = new boolean[mp3FileList.length];
-        nextSlot = mp3FileList.length +1;
-    }
-
-    public Mp3List(Mp3File[] mp3files){
-        mp3FileList = new Mp3File[mp3files.length];
-        System.arraycopy(mp3files, 0, mp3FileList, 0, mp3files.length);
-        changeList = new boolean[mp3files.length];
-        nextSlot = mp3FileList.length + 1;
-    }
+    private Mp3Object[] mp3s;
 
     public Mp3List(File[] fileList) throws java.io.IOException, com.mpatric.mp3agic.UnsupportedTagException, com.mpatric.mp3agic.InvalidDataException{
-        mp3FileList = new Mp3File[fileList.length];
-        changeList = new boolean[fileList.length];
-        for (File file:fileList) {
-            add(new Mp3File(file));
+        mp3s = new Mp3Object[fileList.length];
+        for (int i = 0; i < fileList.length; i++) {
+            mp3s[i] = new Mp3Object(fileList[i]);
         }
-        nextSlot = mp3FileList.length + 1;
+        sort();
     }
 
-    public Mp3File get(int index){
-        return mp3FileList[index];
+    public String getArtist(int index){
+        return mp3s[index].getArtist();
+    }
+
+    public String getAlbumArtist(int index){
+        return mp3s[index].getAlbumArtist();
+    }
+
+    public String getAlbum(int index){
+        return mp3s[index].getAlbum();
+    }
+
+    public String getTitle(int index){
+        return mp3s[index].getTitle();
+    }
+
+    public String getTrack(int index){
+        return mp3s[index].getTrack();
     }
 
     public boolean hasChanged(int index){
-        return changeList[index];
+        return mp3s[index].hasChanged();
     }
 
-    public void setChanged (int index, boolean changed){
-        changeList[index] = changed;
+    public String getLength(int index){
+        return mp3s[index].getLength();
     }
 
-    public boolean add(Mp3File mp3){
-        if(nextSlot <= mp3FileList.length){
-            mp3FileList[nextSlot] = mp3;
-            nextSlot++;
-            return true;
-        } else {
-            return false;
+    public String getBitRate(int index){
+        return mp3s[index].getBitRate();
+    }
+
+    public String getSimpleFilename(int index){
+        return mp3s[index].getSimpleFilename();
+    }
+
+    public String getFilename(int index){
+        return mp3s[index].getFilename();
+    }
+
+    public void setArtist(int index, String artist){
+        mp3s[index].setArtist(artist);
+    }
+
+    public void setAlbumArtist(int index, String albumArtist){
+        mp3s[index].setAlbumArtist(albumArtist);
+    }
+
+    public void setTitle(int index, String title){
+        mp3s[index].setTitle(title);
+    }
+
+    public void setAlbum(int index, String album){
+        mp3s[index].setAlbum(album);
+    }
+
+    public void setTrack(int index, String track){
+        mp3s[index].setTrack(track);
+    }
+
+    public void save() throws java.io.IOException, com.mpatric.mp3agic.NotSupportedException{
+        for (Mp3Object mp3 : mp3s) {
+            if (mp3.hasChanged()){
+                mp3.save();
+            }
         }
     }
 
     public void sort(){
-        Arrays.sort(mp3FileList, new Mp3Comparator());
+        Arrays.sort(mp3s);
     }
+
 }

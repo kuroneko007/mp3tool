@@ -1,7 +1,5 @@
 package info.japandroid.mp3tool;
 
-import com.mpatric.mp3agic.ID3v2;
-
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -11,10 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-
 
 public class GUI implements Mp3Observer{
 
@@ -36,7 +30,7 @@ public class GUI implements Mp3Observer{
     private void buildGUI(){
         frame = new JFrame("mp3tool");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setSize(1000,350);
+        frame.setSize(1000,400);
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
@@ -45,8 +39,7 @@ public class GUI implements Mp3Observer{
         tagPanel.setLayout(new BoxLayout(tagPanel, BoxLayout.Y_AXIS));
 
         JPanel titlePanel = new JPanel();
-        titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.X_AXIS));
-        tfTitle = new JTextField("Title");
+        tfTitle = new JTextField("Title", 30);
         JButton bTitleConfirm = new JButton("Confirm");
         JButton bTitleRevert = new JButton("Revert");
         JButton bTitleAll = new JButton("Apply All");
@@ -72,8 +65,7 @@ public class GUI implements Mp3Observer{
         tagPanel.add(titlePanel);
 
         JPanel artistPanel = new JPanel();
-        artistPanel.setLayout(new BoxLayout(artistPanel, BoxLayout.X_AXIS));
-        tfArtist = new JTextField("Artist");
+        tfArtist = new JTextField("Artist", 30);
         JButton bArtistConfirm = new JButton("Confirm");
         JButton bArtistRevert = new JButton("Revert");
         JButton bArtistAll = new JButton("Apply All");
@@ -99,8 +91,7 @@ public class GUI implements Mp3Observer{
         tagPanel.add(artistPanel);
 
         JPanel albArtistPanel = new JPanel();
-        albArtistPanel.setLayout(new BoxLayout(albArtistPanel, BoxLayout.X_AXIS));
-        tfAlbArtist = new JTextField("Album Artist");
+        tfAlbArtist = new JTextField("Album Artist", 30);
         JButton bAlbArtistConfirm = new JButton("Confirm");
         JButton bAlbArtistRevert = new JButton("Revert");
         JButton bAlbArtistAll = new JButton("Apply All");
@@ -126,8 +117,7 @@ public class GUI implements Mp3Observer{
         tagPanel.add(albArtistPanel);
 
         JPanel albumPanel = new JPanel();
-        albumPanel.setLayout(new BoxLayout(albumPanel, BoxLayout.X_AXIS));
-        tfAlbum = new JTextField("Album");
+        tfAlbum = new JTextField("Album", 30);
         JButton bAlbumConfirm = new JButton("Confirm");
         JButton bAlbumRevert = new JButton("Revert");
         JButton bAlbumAll = new JButton("Apply All");
@@ -153,10 +143,9 @@ public class GUI implements Mp3Observer{
         tagPanel.add(albumPanel);
 
         JPanel trackPanel = new JPanel();
-        trackPanel.setLayout(new BoxLayout(trackPanel, BoxLayout.X_AXIS));
-        tfTrack = new JTextField();
+        tfTrack = new JTextField("", 3);
         JLabel lTracks = new JLabel("of");
-        tfTracks = new JTextField();
+        tfTracks = new JTextField("", 3);
         JButton bTrackConfirm = new JButton("Confirm");
         JButton bTrackRevert = new JButton("Revert");
         trackPanel.add(tfTrack);
@@ -164,10 +153,47 @@ public class GUI implements Mp3Observer{
         trackPanel.add(tfTracks);
         trackPanel.add(bTrackConfirm);
         trackPanel.add(bTrackRevert);
+        bTrackConfirm.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boolean dataOK;
+                try {
+                    if (tfTracks.getText().equals("")){
+                        if(tfTrack.getText().equals("")){
+                            dataOK = true;
+                        } else {
+                            Integer.parseInt(tfTrack.getText());
+                            dataOK = true;
+                        }
+                    } else {
+                        if (tfTrack.getText().equals("")){
+                            JOptionPane.showMessageDialog(frame, "Track number missing");
+                           dataOK = false;
+                        } else {
+                            Integer.parseInt(tfTrack.getText());
+                            Integer.parseInt(tfTracks.getText());
+                            dataOK = true;
+                        }
+                    }
+                } catch (NumberFormatException e1) {
+                    JOptionPane.showMessageDialog(frame, "Track number is not an integer");
+                    dataOK = false;
+                }
+                if (dataOK){
+                    StringBuilder builder = new StringBuilder(tfTrack.getText());
+                    if (!tfTracks.getText().equals("")){
+                        builder.append("/");
+                        builder.append(tfTracks.getText());
+                    }
+                    model.setTrack(builder.toString(), songList.getSelectedIndex());
+                }
+            }
+        });
         trackPanel.setBorder(new TitledBorder("Track"));
         tagPanel.add(trackPanel);
 
         JPanel songPanel = new JPanel();
+        songPanel.setLayout(new BoxLayout(songPanel, BoxLayout.Y_AXIS));
         listModel = new DefaultListModel<>();
         songList = new JList<>(listModel);
         songList.setVisibleRowCount(12);
@@ -220,44 +246,56 @@ public class GUI implements Mp3Observer{
         int result = fileChooser.showOpenDialog(frame);
         File[] filesList;
         if (result == JFileChooser.APPROVE_OPTION){
-            try {
-                filesList = fileChooser.getSelectedFile().listFiles(new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        return name.toLowerCase().endsWith("mp3");
-                    }
-                });
-                if ((filesList != null) && (filesList.length > 0)) {
-                    model.addList(filesList);
-                    model.sort();
-                    songList.removeListSelectionListener(songListListener);
-                    listModel.clear();
-                    for (int i = 0; i < filesList.length; i++) {
-                        Path p = Paths.get(model.getFileName(i));
-                        listModel.addElement(p.getFileName().toString());
-                    }
-                    songList.addListSelectionListener(songListListener);
+            filesList = fileChooser.getSelectedFile().listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.toLowerCase().endsWith("mp3");
                 }
-            } catch (Exception ex){
-                ex.printStackTrace();
+            });
+            if ((filesList != null) && (filesList.length > 0)) {
+                try {
+                    model.addList(filesList);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(frame, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    e.printStackTrace();
+                }
+                songList.removeListSelectionListener(songListListener);
+                listModel.clear();
+                for (int i = 0; i < filesList.length; i++) {
+                    listModel.addElement(model.getSimpleFilename(i));
+                }
+                songList.addListSelectionListener(songListListener);
             }
         }
     }
 
     private void saveFiles(){
-        int result = fileChooser.showSaveDialog(frame);
-        File saveDir;
-        if (result == JFileChooser.APPROVE_OPTION){
-            saveDir = fileChooser.getSelectedFile();
-            model.saveChanged(saveDir);
+        int n = JOptionPane.showConfirmDialog(frame, "Save all changes: Are you sure?", "Confirm Save Action", JOptionPane.YES_NO_OPTION);
+        if (n == JOptionPane.YES_OPTION) {
+            try {
+                model.save();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(frame, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
         }
     }
 
     @Override
     public void updateMP3() {
         for (int i = 0; i < listModel.size(); i++) {
+            String currentVal = listModel.get(i);
+            boolean tagged = currentVal.contains("<html>");
             if (model.hasChanged(i)){
-                listModel.set(i, "<html><i>" +listModel.get(i) + "</i></html>");
+                if (!tagged) {
+                    listModel.set(i, "<html><i>" + currentVal + "</i></html>");
+                }
+            } else {
+                if (tagged){
+                    currentVal = currentVal.replace("<html><i>", "");
+                    currentVal = currentVal.replace("</i></html>", "");
+                    listModel.set(i, currentVal);
+                }
             }
         }
     }
@@ -271,7 +309,13 @@ public class GUI implements Mp3Observer{
                 tfAlbum.setText(model.getAlbum(selected));
                 tfArtist.setText(model.getArtist(selected));
                 tfAlbArtist.setText(model.getAlbumArtist(selected));
-                tfTrack.setText(model.getTrack(selected));
+                String[] track = model.getTrack(selected).split("/");
+                tfTrack.setText(track[0]);
+                if (track.length > 1) {
+                    tfTracks.setText(track[1]);
+                } else {
+                    tfTracks.setText("");
+                }
             }
         }
 
