@@ -41,11 +41,9 @@ public class GUI implements Mp3Observer{
         JPanel titlePanel = new JPanel();
         tfTitle = new JTextField("Title", 30);
         JButton bTitleConfirm = new JButton("Confirm");
-        JButton bTitleRevert = new JButton("Revert");
         JButton bTitleAll = new JButton("Apply All");
         titlePanel.add(tfTitle);
         titlePanel.add(bTitleConfirm);
-        titlePanel.add(bTitleRevert);
         titlePanel.add(bTitleAll);
         bTitleConfirm.addActionListener(new ActionListener() {
             @Override
@@ -67,11 +65,9 @@ public class GUI implements Mp3Observer{
         JPanel artistPanel = new JPanel();
         tfArtist = new JTextField("Artist", 30);
         JButton bArtistConfirm = new JButton("Confirm");
-        JButton bArtistRevert = new JButton("Revert");
         JButton bArtistAll = new JButton("Apply All");
         artistPanel.add(tfArtist);
         artistPanel.add(bArtistConfirm);
-        artistPanel.add(bArtistRevert);
         artistPanel.add(bArtistAll);
         bArtistConfirm.addActionListener(new ActionListener() {
             @Override
@@ -93,11 +89,9 @@ public class GUI implements Mp3Observer{
         JPanel albArtistPanel = new JPanel();
         tfAlbArtist = new JTextField("Album Artist", 30);
         JButton bAlbArtistConfirm = new JButton("Confirm");
-        JButton bAlbArtistRevert = new JButton("Revert");
         JButton bAlbArtistAll = new JButton("Apply All");
         albArtistPanel.add(tfAlbArtist);
         albArtistPanel.add(bAlbArtistConfirm);
-        albArtistPanel.add(bAlbArtistRevert);
         albArtistPanel.add(bAlbArtistAll);
         bAlbArtistConfirm.addActionListener(new ActionListener() {
             @Override
@@ -119,11 +113,9 @@ public class GUI implements Mp3Observer{
         JPanel albumPanel = new JPanel();
         tfAlbum = new JTextField("Album", 30);
         JButton bAlbumConfirm = new JButton("Confirm");
-        JButton bAlbumRevert = new JButton("Revert");
         JButton bAlbumAll = new JButton("Apply All");
         albumPanel.add(tfAlbum);
         albumPanel.add(bAlbumConfirm);
-        albumPanel.add(bAlbumRevert);
         albumPanel.add(bAlbumAll);
         bAlbumConfirm.addActionListener(new ActionListener() {
             @Override
@@ -147,48 +139,11 @@ public class GUI implements Mp3Observer{
         JLabel lTracks = new JLabel("of");
         tfTracks = new JTextField("", 3);
         JButton bTrackConfirm = new JButton("Confirm");
-        JButton bTrackRevert = new JButton("Revert");
         trackPanel.add(tfTrack);
         trackPanel.add(lTracks);
         trackPanel.add(tfTracks);
         trackPanel.add(bTrackConfirm);
-        trackPanel.add(bTrackRevert);
-        bTrackConfirm.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                boolean dataOK;
-                try {
-                    if (tfTracks.getText().equals("")){
-                        if(tfTrack.getText().equals("")){
-                            dataOK = true;
-                        } else {
-                            Integer.parseInt(tfTrack.getText());
-                            dataOK = true;
-                        }
-                    } else {
-                        if (tfTrack.getText().equals("")){
-                            JOptionPane.showMessageDialog(frame, "Track number missing");
-                           dataOK = false;
-                        } else {
-                            Integer.parseInt(tfTrack.getText());
-                            Integer.parseInt(tfTracks.getText());
-                            dataOK = true;
-                        }
-                    }
-                } catch (NumberFormatException e1) {
-                    JOptionPane.showMessageDialog(frame, "Track number is not an integer");
-                    dataOK = false;
-                }
-                if (dataOK){
-                    StringBuilder builder = new StringBuilder(tfTrack.getText());
-                    if (!tfTracks.getText().equals("")){
-                        builder.append("/");
-                        builder.append(tfTracks.getText());
-                    }
-                    model.setTrack(builder.toString(), songList.getSelectedIndex());
-                }
-            }
-        });
+        bTrackConfirm.addActionListener(new TrackListener());
         trackPanel.setBorder(new TitledBorder("Track"));
         tagPanel.add(trackPanel);
 
@@ -300,6 +255,33 @@ public class GUI implements Mp3Observer{
         }
     }
 
+    private boolean validateTracks(){
+        boolean dataOK;
+        try {
+            if (tfTracks.getText().equals("")) {
+                if (tfTrack.getText().equals("")) {
+                    dataOK = true;
+                } else {
+                    Integer.parseInt(tfTrack.getText());
+                    dataOK = true;
+                }
+            } else {
+                if (tfTrack.getText().equals("")) {
+                    JOptionPane.showMessageDialog(frame, "Track number missing");
+                    dataOK = false;
+                } else {
+                    Integer.parseInt(tfTrack.getText());
+                    Integer.parseInt(tfTracks.getText());
+                    dataOK = true;
+                }
+            }
+        } catch (NumberFormatException e1) {
+            JOptionPane.showMessageDialog(frame, "Track number is not an integer");
+            dataOK = false;
+        }
+        return dataOK;
+    }
+
     private class SongListListener implements ListSelectionListener{
         @Override
         public void valueChanged(ListSelectionEvent e) {
@@ -319,5 +301,19 @@ public class GUI implements Mp3Observer{
             }
         }
 
+    }
+
+    private class TrackListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (validateTracks()) {
+                StringBuilder builder = new StringBuilder(tfTrack.getText());
+                if (!tfTracks.getText().equals("")) {
+                    builder.append("/");
+                    builder.append(tfTracks.getText());
+                }
+                model.setTrack(builder.toString(), songList.getSelectedIndex());
+            }
+        }
     }
 }
