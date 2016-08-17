@@ -1,5 +1,6 @@
 package info.japandroid.mp3tool;
 
+import javax.swing.*;
 import java.io.File;
 import java.util.Arrays;
 
@@ -53,6 +54,10 @@ public class Mp3List {
 
     public String getFilename(int index){
         return mp3s[index].getFilename();
+    }
+
+    public byte[] getAlbumArt(int index){
+        return mp3s[index].getAlbumArt();
     }
 
     public void setArtist(int index, String artist){

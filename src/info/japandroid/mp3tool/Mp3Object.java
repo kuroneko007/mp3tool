@@ -1,9 +1,9 @@
 package info.japandroid.mp3tool;
 
-import com.mpatric.mp3agic.InvalidDataException;
-import com.mpatric.mp3agic.Mp3File;
-import com.mpatric.mp3agic.UnsupportedTagException;
+import com.mpatric.mp3agic.*;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
@@ -24,6 +24,31 @@ public class Mp3Object implements Comparable<Mp3Object>{
         mp3 = new Mp3File(file, 65536, true); //65536 corresponds to DEFAULT_BUFFER_LENGTH in Mp3File
         changed = false;
         simpleFilename = file.getName();
+        if (mp3.hasId3v1Tag()){
+            if (mp3.hasId3v2Tag()){
+                if ((mp3.getId3v2Tag().getArtist() == null)||(mp3.getId3v2Tag().getArtist() == "")){
+                    setArtist(mp3.getId3v1Tag().getArtist());
+                }
+                if ((mp3.getId3v2Tag().getAlbum() == null)||(mp3.getId3v2Tag().getAlbum() == "")){
+                    setArtist(mp3.getId3v1Tag().getAlbum());
+                }
+                if ((mp3.getId3v2Tag().getTitle() == null)||(mp3.getId3v2Tag().getTitle() == "")){
+                    setArtist(mp3.getId3v1Tag().getTitle());
+                }
+                if ((mp3.getId3v2Tag().getTrack() == null)||(mp3.getId3v2Tag().getTrack() == "")){
+                    setArtist(mp3.getId3v1Tag().getTrack());
+                }
+            } else {
+                ID3v2 id3v2Tag = new ID3v24Tag();
+                id3v2Tag.setArtist(mp3.getId3v1Tag().getArtist());
+                id3v2Tag.setAlbum(mp3.getId3v1Tag().getAlbum());
+                id3v2Tag.setTitle(mp3.getId3v1Tag().getTitle());
+                id3v2Tag.setTrack(mp3.getId3v1Tag().getTrack());
+                mp3.setId3v2Tag(id3v2Tag);
+            }
+
+        }
+        mp3.removeId3v1Tag();
     }
 
     public String getArtist(){
@@ -77,7 +102,7 @@ public class Mp3Object implements Comparable<Mp3Object>{
         int seconds = (int)mp3.getLengthInSeconds();
         int minutes = seconds / 60;
         seconds = seconds % 60;
-        return minutes + ":" + seconds;
+        return String.format("%02d:%02d", minutes, seconds);
     }
 
     public String getBitRate(){
@@ -90,6 +115,13 @@ public class Mp3Object implements Comparable<Mp3Object>{
 
     public String getFilename(){
         return mp3.getFilename();
+    }
+
+    public byte[] getAlbumArt(){
+        if (mp3.hasId3v2Tag()) {
+            return mp3.getId3v2Tag().getAlbumImage();
+        }
+        return null;
     }
 
     public void setArtist(String artist){

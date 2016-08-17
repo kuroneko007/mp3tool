@@ -18,8 +18,10 @@ public class GUI implements Mp3Observer{
     private DefaultListModel<String> listModel;
     private JFileChooser fileChooser;
     private JTextField tfTitle, tfArtist, tfAlbArtist, tfAlbum, tfTrack, tfTracks;
+    private JLabel lLength, lBitRate, lAlbumArt;
     private JList<String> songList;
     private SongListListener songListListener;
+    private ImageIcon iBlank;
 
     public GUI(Mp3ModelInterface model){
         this.model = model;
@@ -30,7 +32,7 @@ public class GUI implements Mp3Observer{
     private void buildGUI(){
         frame = new JFrame("mp3tool");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setSize(1000,400);
+        frame.setSize(1000,600);
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
@@ -134,6 +136,9 @@ public class GUI implements Mp3Observer{
         albumPanel.setBorder(new TitledBorder("Album"));
         tagPanel.add(albumPanel);
 
+        JPanel infoNArt = new JPanel();
+        JPanel trackNInfo = new JPanel();
+        trackNInfo.setLayout(new BoxLayout(trackNInfo, BoxLayout.Y_AXIS));
         JPanel trackPanel = new JPanel();
         tfTrack = new JTextField("", 3);
         JLabel lTracks = new JLabel("of");
@@ -144,8 +149,23 @@ public class GUI implements Mp3Observer{
         trackPanel.add(tfTracks);
         trackPanel.add(bTrackConfirm);
         bTrackConfirm.addActionListener(new TrackListener());
-        trackPanel.setBorder(new TitledBorder("Track"));
-        tagPanel.add(trackPanel);
+        trackNInfo.add(trackPanel);
+        JPanel infoPanel = new JPanel();
+        lLength = new JLabel("Length:       ");
+        lBitRate = new JLabel("Bitrate:            ");
+        infoPanel.add(lLength);
+        infoPanel.add(lBitRate);
+        trackNInfo.add(infoPanel);
+        trackNInfo.setBorder(new TitledBorder("Track"));
+        infoNArt.add(trackNInfo);
+        JPanel artPanel = new JPanel();
+        lAlbumArt = new JLabel();
+        artPanel.add(lAlbumArt);
+        iBlank = new ImageIcon("./blank.png");
+        lAlbumArt.setIcon(iBlank);
+        artPanel.setBorder(new TitledBorder("Cover Art"));
+        infoNArt.add(artPanel);
+        tagPanel.add(infoNArt);
 
         JPanel songPanel = new JPanel();
         songPanel.setLayout(new BoxLayout(songPanel, BoxLayout.Y_AXIS));
@@ -297,6 +317,16 @@ public class GUI implements Mp3Observer{
                     tfTracks.setText(track[1]);
                 } else {
                     tfTracks.setText("");
+                }
+                lLength.setText("Length: " + model.getLength(selected) + " ");
+                lBitRate.setText("Bitrate: " + model.getBitRate(selected));
+                byte[] imageData = model.getAlbumArt(selected);
+                if (imageData != null){
+                    Image image = new ImageIcon(imageData).getImage();
+                    image = image.getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+                    lAlbumArt.setIcon(new ImageIcon(image));
+                } else {
+                    lAlbumArt.setIcon(iBlank);
                 }
             }
         }
