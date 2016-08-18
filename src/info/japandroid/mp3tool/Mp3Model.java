@@ -96,6 +96,12 @@ public class Mp3Model implements Mp3ModelInterface{
     }
 
     @Override
+    public void setAlbumArt(byte[] imgData, String type, int index){
+        mp3s.setAlbumArt(index, imgData, type);
+        notifyObservers();
+    }
+
+    @Override
     public void setTrack(String track, int index) {
         mp3s.setTrack(index, track);
         notifyObservers();

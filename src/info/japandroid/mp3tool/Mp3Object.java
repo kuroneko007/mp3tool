@@ -164,6 +164,11 @@ public class Mp3Object implements Comparable<Mp3Object>{
         }
     }
 
+    public void setAlbumArt(byte[] imgData, String type){
+        mp3.getId3v2Tag().setAlbumImage(imgData, type);
+        changed = true;
+    }
+
     public void save() throws java.io.IOException, com.mpatric.mp3agic.NotSupportedException{
         String fileName = mp3.getFilename();
         mp3.save(fileName + ".new");

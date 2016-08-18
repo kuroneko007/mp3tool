@@ -80,6 +80,10 @@ public class Mp3List {
         mp3s[index].setTrack(track);
     }
 
+    public void setAlbumArt(int index, byte[] imgData, String type){
+        mp3s[index].setAlbumArt(imgData, type);
+    }
+
     public void save() throws java.io.IOException, com.mpatric.mp3agic.NotSupportedException{
         for (Mp3Object mp3 : mp3s) {
             if (mp3.hasChanged()){

@@ -1,14 +1,20 @@
 package info.japandroid.mp3tool;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 
 public class GUI implements Mp3Observer{
 
@@ -22,6 +28,7 @@ public class GUI implements Mp3Observer{
     private JList<String> songList;
     private SongListListener songListListener;
     private ImageIcon iBlank;
+    private Image iAlbumArt;
 
     public GUI(Mp3ModelInterface model){
         this.model = model;
@@ -159,10 +166,41 @@ public class GUI implements Mp3Observer{
         trackNInfo.setBorder(new TitledBorder("Track"));
         infoNArt.add(trackNInfo);
         JPanel artPanel = new JPanel();
+        artPanel.setLayout(new BoxLayout(artPanel, BoxLayout.Y_AXIS));
+        JPanel imgPanel = new JPanel();
+        JPanel artButtonPanel = new JPanel();
         lAlbumArt = new JLabel();
-        artPanel.add(lAlbumArt);
+        imgPanel.add(lAlbumArt);
         iBlank = new ImageIcon("./blank.png");
         lAlbumArt.setIcon(iBlank);
+        artPanel.add(imgPanel);
+        JButton bImgLoad = new JButton("Load Image");
+        bImgLoad.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                loadArt();
+            }
+        });
+        JButton bImgApply = new JButton("Confirm");
+        bImgApply.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveAlbumArt(songList.getSelectedIndex());
+            }
+        });
+        JButton bImgAll = new JButton("Apply All");
+        bImgAll.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for (int i = 0; i < listModel.size(); i++) {
+                    saveAlbumArt(i);
+                }
+            }
+        });
+        artButtonPanel.add(bImgLoad);
+        artButtonPanel.add(bImgApply);
+        artButtonPanel.add(bImgAll);
+        artPanel.add(artButtonPanel);
         artPanel.setBorder(new TitledBorder("Cover Art"));
         infoNArt.add(artPanel);
         tagPanel.add(infoNArt);
@@ -256,6 +294,33 @@ public class GUI implements Mp3Observer{
         }
     }
 
+    private void loadArt(){
+        FileFilter imageFilter = new FileNameExtensionFilter("Image files", ImageIO.getReaderFileSuffixes());
+        JFileChooser artChooser = new JFileChooser();
+        artChooser.setFileFilter(imageFilter);
+        int result = artChooser.showOpenDialog(frame);
+        if (result == JFileChooser.APPROVE_OPTION){
+            File fArt = artChooser.getSelectedFile();
+            iAlbumArt = new ImageIcon(fArt.getPath()).getImage();
+            Image scaledImage = iAlbumArt.getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+            lAlbumArt.setIcon(new ImageIcon(scaledImage));
+        }
+    }
+
+    private void saveAlbumArt(int index){
+        BufferedImage buffArt = new BufferedImage(iAlbumArt.getWidth(null), iAlbumArt.getHeight(null), BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2 = buffArt.createGraphics();
+        g2.drawImage(iAlbumArt, null, null);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(buffArt, "jpg", baos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        byte[] byteArt = baos.toByteArray();
+        model.setAlbumArt(byteArt, "jpg", index);
+    }
+
     @Override
     public void updateMP3() {
         for (int i = 0; i < listModel.size(); i++) {
@@ -322,11 +387,12 @@ public class GUI implements Mp3Observer{
                 lBitRate.setText("Bitrate: " + model.getBitRate(selected));
                 byte[] imageData = model.getAlbumArt(selected);
                 if (imageData != null){
-                    Image image = new ImageIcon(imageData).getImage();
-                    image = image.getScaledInstance(200, 200, Image.SCALE_SMOOTH);
-                    lAlbumArt.setIcon(new ImageIcon(image));
+                    iAlbumArt = new ImageIcon(imageData).getImage();
+                    Image scaledImage = iAlbumArt.getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+                    lAlbumArt.setIcon(new ImageIcon(scaledImage));
                 } else {
                     lAlbumArt.setIcon(iBlank);
+                    iAlbumArt = null;
                 }
             }
         }

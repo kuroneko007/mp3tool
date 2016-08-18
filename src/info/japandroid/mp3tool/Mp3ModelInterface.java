@@ -23,6 +23,7 @@ public interface Mp3ModelInterface {
     void setAlbumArtist(String artist, int index);
     void setAlbum(String album, int index);
     void setTrack(String track, int index);
+    void setAlbumArt(byte[] imgData, String type, int index);
     void sort();
     void save() throws java.io.IOException, com.mpatric.mp3agic.NotSupportedException;
     boolean hasChanged(int index);
