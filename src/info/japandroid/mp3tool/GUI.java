@@ -23,6 +23,7 @@ public class GUI implements Mp3Observer{
     private JFrame frame;
     private DefaultListModel<String> listModel;
     private JFileChooser fileChooser;
+    private JButton bTitleConfirm, bTitleAll, bArtistConfirm, bArtistAll, bAlbArtistConfirm, bAlbArtistAll, bAlbumConfirm, bAlbumAll, bTrackConfirm, bImgLoad, bImgApply, bImgAll, bLoad, bSave, bExit;
     private JTextField tfTitle, tfArtist, tfAlbArtist, tfAlbum, tfTrack, tfTracks;
     private JLabel lLength, lBitRate, lAlbumArt;
     private JList<String> songList;
@@ -49,8 +50,10 @@ public class GUI implements Mp3Observer{
 
         JPanel titlePanel = new JPanel();
         tfTitle = new JTextField("Title", 30);
-        JButton bTitleConfirm = new JButton("Confirm");
-        JButton bTitleAll = new JButton("Apply All");
+        bTitleConfirm = new JButton("Confirm");
+        bTitleConfirm.setEnabled(false);
+        bTitleAll = new JButton("Apply All");
+        bTitleAll.setEnabled(false);
         titlePanel.add(tfTitle);
         titlePanel.add(bTitleConfirm);
         titlePanel.add(bTitleAll);
@@ -73,8 +76,10 @@ public class GUI implements Mp3Observer{
 
         JPanel artistPanel = new JPanel();
         tfArtist = new JTextField("Artist", 30);
-        JButton bArtistConfirm = new JButton("Confirm");
-        JButton bArtistAll = new JButton("Apply All");
+        bArtistConfirm = new JButton("Confirm");
+        bArtistConfirm.setEnabled(false);
+        bArtistAll = new JButton("Apply All");
+        bArtistAll.setEnabled(false);
         artistPanel.add(tfArtist);
         artistPanel.add(bArtistConfirm);
         artistPanel.add(bArtistAll);
@@ -97,8 +102,10 @@ public class GUI implements Mp3Observer{
 
         JPanel albArtistPanel = new JPanel();
         tfAlbArtist = new JTextField("Album Artist", 30);
-        JButton bAlbArtistConfirm = new JButton("Confirm");
-        JButton bAlbArtistAll = new JButton("Apply All");
+        bAlbArtistConfirm = new JButton("Confirm");
+        bAlbArtistConfirm.setEnabled(false);
+        bAlbArtistAll = new JButton("Apply All");
+        bAlbArtistAll.setEnabled(false);
         albArtistPanel.add(tfAlbArtist);
         albArtistPanel.add(bAlbArtistConfirm);
         albArtistPanel.add(bAlbArtistAll);
@@ -121,8 +128,10 @@ public class GUI implements Mp3Observer{
 
         JPanel albumPanel = new JPanel();
         tfAlbum = new JTextField("Album", 30);
-        JButton bAlbumConfirm = new JButton("Confirm");
-        JButton bAlbumAll = new JButton("Apply All");
+        bAlbumConfirm = new JButton("Confirm");
+        bAlbumConfirm.setEnabled(false);
+        bAlbumAll = new JButton("Apply All");
+        bAlbumAll.setEnabled(false);
         albumPanel.add(tfAlbum);
         albumPanel.add(bAlbumConfirm);
         albumPanel.add(bAlbumAll);
@@ -150,7 +159,8 @@ public class GUI implements Mp3Observer{
         tfTrack = new JTextField("", 3);
         JLabel lTracks = new JLabel("of");
         tfTracks = new JTextField("", 3);
-        JButton bTrackConfirm = new JButton("Confirm");
+        bTrackConfirm = new JButton("Confirm");
+        bTrackConfirm.setEnabled(false);
         trackPanel.add(tfTrack);
         trackPanel.add(lTracks);
         trackPanel.add(tfTracks);
@@ -174,21 +184,23 @@ public class GUI implements Mp3Observer{
         iBlank = new ImageIcon("./blank.png");
         lAlbumArt.setIcon(iBlank);
         artPanel.add(imgPanel);
-        JButton bImgLoad = new JButton("Load Image");
+        bImgLoad = new JButton("Load Image");
         bImgLoad.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 loadArt();
             }
         });
-        JButton bImgApply = new JButton("Confirm");
+        bImgLoad.setEnabled(false);
+        bImgApply = new JButton("Confirm");
         bImgApply.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 saveAlbumArt(songList.getSelectedIndex());
             }
         });
-        JButton bImgAll = new JButton("Apply All");
+        bImgApply.setEnabled(false);
+        bImgAll = new JButton("Apply All");
         bImgAll.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -197,6 +209,7 @@ public class GUI implements Mp3Observer{
                 }
             }
         });
+        bImgAll.setEnabled(false);
         artButtonPanel.add(bImgLoad);
         artButtonPanel.add(bImgApply);
         artButtonPanel.add(bImgAll);
@@ -220,7 +233,7 @@ public class GUI implements Mp3Observer{
         songList.addListSelectionListener(songListListener);
 
         JPanel buttonPanel = new JPanel();
-        JButton bLoad = new JButton("Load");
+        bLoad = new JButton("Load");
         buttonPanel.add(bLoad);
         bLoad.addActionListener(new ActionListener() {
             @Override
@@ -228,7 +241,7 @@ public class GUI implements Mp3Observer{
                 loadFiles();
             }
         });
-        JButton bSave = new JButton("Save");
+        bSave = new JButton("Save");
         buttonPanel.add(bSave);
         bSave.addActionListener(new ActionListener() {
             @Override
@@ -236,7 +249,8 @@ public class GUI implements Mp3Observer{
                 saveFiles();
             }
         });
-        JButton bExit = new JButton("Exit");
+        bSave.setEnabled(false);
+        bExit = new JButton("Exit");
         buttonPanel.add(bExit);
         bExit.addActionListener(new ActionListener() {
             @Override
@@ -278,6 +292,7 @@ public class GUI implements Mp3Observer{
                     listModel.addElement(model.getSimpleFilename(i));
                 }
                 songList.addListSelectionListener(songListListener);
+                enableButtons();
             }
         }
     }
@@ -365,6 +380,22 @@ public class GUI implements Mp3Observer{
             dataOK = false;
         }
         return dataOK;
+    }
+
+    private void enableButtons(){
+        bAlbArtistAll.setEnabled(true);
+        bAlbArtistConfirm.setEnabled(true);
+        bAlbumAll.setEnabled(true);
+        bAlbumConfirm.setEnabled(true);
+        bArtistAll.setEnabled(true);
+        bArtistConfirm.setEnabled(true);
+        bTitleAll.setEnabled(true);
+        bTitleConfirm.setEnabled(true);
+        bTrackConfirm.setEnabled(true);
+        bImgLoad.setEnabled(true);
+        bImgAll.setEnabled(true);
+        bImgApply.setEnabled(true);
+        bSave.setEnabled(true);
     }
 
     private class SongListListener implements ListSelectionListener{
