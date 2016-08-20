@@ -1,6 +1,5 @@
 package info.japandroid.mp3tool;
 
-import javax.swing.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +63,11 @@ public class Mp3Model implements Mp3ModelInterface{
     @Override
     public byte[] getAlbumArt(int index){
         return mp3s.getAlbumArt(index);
+    }
+
+    @Override
+    public String getMimeType(int index) {
+        return mp3s.getMimeType(index);
     }
 
     @Override

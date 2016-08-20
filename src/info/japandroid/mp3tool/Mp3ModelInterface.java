@@ -16,6 +16,7 @@ public interface Mp3ModelInterface {
     String getFileName(int index);
     String getSimpleFilename(int index);
     byte[] getAlbumArt(int index);
+    String getMimeType(int index);
     String getBitRate(int index);
     String getLength(int index);
     void setTitle(String title, int index);

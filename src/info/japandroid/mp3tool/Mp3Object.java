@@ -2,8 +2,6 @@ package info.japandroid.mp3tool;
 
 import com.mpatric.mp3agic.*;
 
-import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
@@ -49,6 +47,9 @@ public class Mp3Object implements Comparable<Mp3Object>{
 
         }
         mp3.removeId3v1Tag();
+        if (!mp3.hasId3v2Tag()){
+            mp3.setId3v2Tag(new ID3v24Tag());
+        }
     }
 
     public String getArtist(){
@@ -118,10 +119,11 @@ public class Mp3Object implements Comparable<Mp3Object>{
     }
 
     public byte[] getAlbumArt(){
-        if (mp3.hasId3v2Tag()) {
             return mp3.getId3v2Tag().getAlbumImage();
-        }
-        return null;
+    }
+
+    public String getMimeType(){
+        return mp3.getId3v2Tag().getAlbumImageMimeType();
     }
 
     public void setArtist(String artist){
