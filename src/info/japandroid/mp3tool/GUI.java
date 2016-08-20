@@ -39,7 +39,7 @@ public class GUI implements Mp3Observer{
     private void buildGUI(){
         frame = new JFrame("mp3tool");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setSize(1000,600);
+        frame.setSize(1000,650);
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
@@ -180,7 +180,7 @@ public class GUI implements Mp3Observer{
         JPanel artButtonPanel = new JPanel();
         lAlbumArt = new JLabel();
         imgPanel.add(lAlbumArt);
-        iBlank = new ImageIcon("./blank.png");
+        iBlank = new ImageIcon("src/asset/blank.png");
         lAlbumArt.setIcon(iBlank);
         artPanel.add(imgPanel);
         JPanel artInfoPanel = new JPanel();
